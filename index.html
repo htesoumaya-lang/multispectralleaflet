@@ -1,175 +1,146 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Exercice 3 - Projet Web Mapping</title>
+<meta charset="utf-8">
+<title>Exercice 3 - Projet Web Mapping</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      background: #e6e9ed;
-      font-family: "Segoe UI", Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-    .projet {
-      background: white;
-      border: 6px solid #000;
-      border-radius: 12px;
-      width: 85%;
-      max-width: 1200px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 30px 30px 30px;
-    }
+  .project-frame {
+    background: #fff;
+    border: 4px solid black;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 1200px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
 
-    .header {
-      text-align: center;
-      position: relative;
-      width: 100%;
-      margin-bottom: 10px;
-    }
+  .project-header img {
+    height: 70px;
+    vertical-align: middle;
+  }
 
-    .header img {
-      position: absolute;
-      left: 20px;
-      top: 5px;
-      height: 60px;
-    }
+  .project-header h1 {
+    margin: 10px 0 5px;
+    font-size: 26px;
+  }
 
-    .header h1 {
-      font-size: 26px;
-      margin: 0;
-      color: #102542;
-      text-transform: uppercase;
-      font-weight: bold;
-    }
+  .project-header h2 {
+    margin: 5px 0;
+    font-weight: normal;
+    color: #333;
+  }
 
-    .header h2 {
-      font-size: 18px;
-      color: #333;
-      margin-top: 5px;
-      font-weight: normal;
-    }
+  #map {
+    width: 100%;
+    height: 600px;
+    margin-top: 15px;
+    border: 3px solid black;
+  }
 
-    #map {
-      width: 100%;
-      height: 70vh;
-      border: 4px solid black;
-      margin-top: 15px;
-    }
+  .controls {
+    margin: 10px 0;
+  }
 
-    .controls {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-    }
+  .controls button {
+    background-color: #102542;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 0 10px;
+  }
 
-    .controls button {
-      background-color: #102542;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s;
-    }
-
-    .controls button:hover {
-      background-color: #1b4b8a;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    img.leaflet-image-layer {
-      image-rendering: pixelated; /* meilleure netteté */
-    }
-  </style>
+  .controls button:hover {
+    background-color: #1b4b8a;
+  }
+</style>
 </head>
 
 <body>
-  <div class="projet">
-    <div class="header">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV Hassan II">
-      <h1>Exercice 3 : Visualisation d’une image satellite multispectrale</h1>
-      <h2>Projet Web Mapping – Encadré par Pr. HAJJI</h2>
+  <div class="project-frame">
+    <!-- Logo et titre -->
+    <div class="project-header">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV">
+      <h1>Exercice 3 - Projet Web Mapping</h1>
+      <h2>Encadré par Pr HAJJI</h2>
     </div>
 
+    <!-- Carte -->
     <div id="map"></div>
 
+    <!-- Boutons pour cacher/afficher l'image -->
     <div class="controls">
       <button id="showImage">Afficher l’image</button>
       <button id="hideImage">Masquer l’image</button>
     </div>
-
-    <footer>
-      © 2025 - IAV Hassan II | Département Topographie et SIG
-    </footer>
   </div>
 
-  <script>
-    // Initialisation de la carte
-    const map = L.map('map', {
-      center: [45.4933, 12.3166],
-      zoom: 11
-    });
+<script>
+  // Initialisation de la carte centrée sur la zone moyenne
+  const map = L.map('map', {
+    center: [45.4933, 12.3166],
+    zoom: 13
+  });
 
-    // Fond OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+  // Fond OSM
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
 
-    // Limites géographiques
-    const bounds = [
-      [45.40933, 12.16003], // Sud-Ouest
-      [45.58593, 12.47361]  // Nord-Est
-    ];
+  // Coordonnées de ton image (12 tuiles)
+  const bounds = [
+    [45.40933, 12.16003], // Sud-Ouest
+    [45.58593, 12.47361]  // Nord-Est
+  ];
 
-    // Rectangle délimitant la zone
-    L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
-    map.fitBounds(bounds);
+  // Cadre noir autour de l'image
+  const rectangle = L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
 
-    // Groupe des images
-    const imageGroup = L.layerGroup();
+  // Ajout des 12 tuiles GeoTIFF (nommées 1.png à 12.png)
+  const overlays = [];
+  for (let i = 1; i <= 12; i++) {
+    const overlay = L.imageOverlay(`${i}.png`, bounds, { opacity: 0.9 });
+    overlay.addTo(map);
+    overlays.push(overlay);
+  }
 
-    for (let i = 1; i <= 12; i++) {
-      const imageUrl = `${i}.png`;
-      L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(imageGroup);
-    }
+  // Popup sur la zone
+  L.popup()
+    .setLatLng([45.4933, 12.3166])
+    .setContent("📷 Cette orthophoto est issue de notre dernier TP drone.")
+    .openOn(map);
 
-    // Par défaut : afficher l’image
-    imageGroup.addTo(map);
+  // Boutons pour afficher/masquer les tuiles
+  document.getElementById('hideImage').addEventListener('click', () => {
+    overlays.forEach(o => map.removeLayer(o));
+  });
 
-    // Gestion des boutons
-    document.getElementById('hideImage').onclick = () => {
-      if (map.hasLayer(imageGroup)) map.removeLayer(imageGroup);
-    };
+  document.getElementById('showImage').addEventListener('click', () => {
+    overlays.forEach(o => o.addTo(map));
+  });
 
-    document.getElementById('showImage').onclick = () => {
-      if (!map.hasLayer(imageGroup)) imageGroup.addTo(map);
-    };
+  // Ajustement de la vue
+  map.fitBounds(bounds);
+</script>
 
-    // Popup d’information
-    L.popup()
-      .setLatLng([45.4933, 12.3166])
-      .setContent("📷 cette image est une image landsat multispectrale.")
-      .openOn(map);
-  </script>
 </body>
 </html>
