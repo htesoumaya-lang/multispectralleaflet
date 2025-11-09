@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Visualisation Orthophoto Drone</title>
+  <title>Exercice 3 - Projet Web Mapping</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,54 +12,130 @@
     html, body {
       height: 100%;
       margin: 0;
-      background: #f4f4f4;
+      background: #ecf0f1;
+      font-family: "Segoe UI", Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+
+    .container {
+      background: #fff;
+      border: 6px solid #000;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1300px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    header {
+      background: #1a2a40;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      border-bottom: 5px solid #000;
+      position: relative;
+    }
+
+    header img {
+      height: 60px;
+      position: absolute;
+      top: 10px;
+      left: 25px;
+    }
+
+    header h1 {
+      margin: 5px 0 0 0;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    header h2 {
+      margin: 3px 0 0 0;
+      font-size: 18px;
+      color: #dcdcdc;
+      font-weight: normal;
+    }
+
     #map {
-      width: 100%;
-      height: 100%;
-      border: 4px solid black;
+      flex: 1;
+      border-top: 4px solid #000;
+      border-bottom: 4px solid #000;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #1a2a40;
+      color: white;
+      border-top: 5px solid #000;
+      font-size: 14px;
+    }
+
+    img.leaflet-image-layer {
+      image-rendering: pixelated; /* améliore la netteté du rendu */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
+
 <body>
+  <div class="container">
+    <header>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV">
+      <h1>Exercice 3 : Visualisation d’images drone et satellite</h1>
+      <h2>Projet Web Mapping – Encadré par Pr. HAJJI</h2>
+    </header>
 
-<div id="map"></div>
+    <div id="map"></div>
 
-<script>
-  // Initialisation de la carte centrée sur les coordonnées moyennes
-  const map = L.map('map', {
-    center: [45.4933, 12.3166],
-    zoom: 11
-  });
+    <footer>
+      © 2025 - IAV Hassan II | Département Topographie et SIG
+    </footer>
+  </div>
 
-  // Fond cartographique OSM
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+  <script>
+    // Initialisation de la carte
+    const map = L.map('map', {
+      center: [45.4933, 12.3166],
+      zoom: 11
+    });
 
-  // Coordonnées géographiques de ton image (en degrés décimaux)
-  const bounds = [
-    [45.40933, 12.16003], // Sud-Ouest
-    [45.58593, 12.47361]  // Nord-Est
-  ];
+    // Fond cartographique
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
-  // On affiche un cadre noir pour la zone couverte par les tuiles
-  L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
-  map.fitBounds(bounds);
+    // Délimitation de l’image
+    const bounds = [
+      [45.40933, 12.16003], // Sud-Ouest
+      [45.58593, 12.47361]  // Nord-Est
+    ];
 
-  // Boucle pour ajouter les 12 tuiles si elles sont nommées 1.png, 2.png, etc.
-  for (let i = 1; i <= 12; i++) {
-    const imageUrl = `${i}.png`;
-    L.imageOverlay(imageUrl, bounds, { opacity: 0.8 }).addTo(map);
-  }
+    // Cadre du projet
+    L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
+    map.fitBounds(bounds);
 
-  // Popup informatif
-  L.popup()
-    .setLatLng([45.4933, 12.3166])
-    .setContent("📷 Cette orthophoto est issue de notre dernier TP Drone (DJI Matrice 300, 28/10/2025, Pr Sebari).")
-    .openOn(map);
-</script>
+    // Superposition des 12 tuiles
+    for (let i = 1; i <= 12; i++) {
+      const imageUrl = `${i}.png`;
+      L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(map);
+    }
 
+    // Popup d’information
+    L.popup()
+      .setLatLng([45.4933, 12.3166])
+      .setContent("📷 Cette orthophoto est issue de notre dernier TP drone.")
+      .openOn(map);
+  </script>
 </body>
 </html>
