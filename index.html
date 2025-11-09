@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <title>Exercice 3 - Projet Web Mapping</title>
 
-<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -73,20 +72,16 @@
   }
 </style>
 </head>
-
 <body>
   <div class="project-frame">
-    <!-- Logo et titre -->
     <div class="project-header">
       <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV">
       <h1>Exercice 3 - Projet Web Mapping</h1>
       <h2>Encadré par Pr HAJJI</h2>
     </div>
 
-    <!-- Carte -->
     <div id="map"></div>
 
-    <!-- Boutons pour cacher/afficher l'image -->
     <div class="controls">
       <button id="showImage">Afficher l’image</button>
       <button id="hideImage">Masquer l’image</button>
@@ -94,53 +89,43 @@
   </div>
 
 <script>
-  // Initialisation de la carte centrée sur la zone moyenne
   const map = L.map('map', {
     center: [45.4933, 12.3166],
     zoom: 13
   });
 
-  // Fond OSM
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // Coordonnées de ton image (12 tuiles)
   const bounds = [
     [45.40933, 12.16003], // Sud-Ouest
     [45.58593, 12.47361]  // Nord-Est
   ];
 
-  // Cadre noir autour de l'image
   const rectangle = L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
+  map.fitBounds(bounds);
 
-  // Ajout des 12 tuiles GeoTIFF (nommées 1.png à 12.png)
+  // On ne crée pas les tuiles immédiatement
   const overlays = [];
   for (let i = 1; i <= 12; i++) {
     const overlay = L.imageOverlay(`${i}.png`, bounds, { opacity: 0.9 });
-    overlay.addTo(map);
     overlays.push(overlay);
   }
 
-  // Popup sur la zone
   L.popup()
     .setLatLng([45.4933, 12.3166])
     .setContent("📷 Cette orthophoto est issue de notre dernier TP drone.")
     .openOn(map);
 
-  // Boutons pour afficher/masquer les tuiles
-  document.getElementById('hideImage').addEventListener('click', () => {
-    overlays.forEach(o => map.removeLayer(o));
-  });
-
   document.getElementById('showImage').addEventListener('click', () => {
     overlays.forEach(o => o.addTo(map));
   });
 
-  // Ajustement de la vue
-  map.fitBounds(bounds);
+  document.getElementById('hideImage').addEventListener('click', () => {
+    overlays.forEach(o => map.removeLayer(o));
+  });
 </script>
-
 </body>
 </html>
