@@ -2,128 +2,64 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Cours Web Mapping - Exercice 3</title>
+  <title>Visualisation Orthophoto Drone</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Plugins -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.css" />
-  <script src="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css" />
-  <script src="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js"></script>
-
   <style>
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
-      background-color: #f4f6f8;
-      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f4f4;
     }
-
-    header {
-      background: #1a2a40;
-      color: white;
-      text-align: center;
-      padding: 15px 0;
-      border-bottom: 5px solid #000;
-    }
-
-    header img {
-      height: 65px;
-      vertical-align: middle;
-    }
-
-    h1 {
-      font-size: 26px;
-      margin: 5px 0 0 0;
-    }
-
-    h2 {
-      font-size: 18px;
-      color: #dcdcdc;
-      margin-top: 3px;
-    }
-
     #map {
-      height: calc(100vh - 110px);
-      border: 4px solid #000;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      animation: fadeIn 1.2s ease-in;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 13px;
-      color: #666;
-      border-top: 1px solid #ccc;
-      padding: 8px 0;
-      background-color: #fff;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
+      width: 100%;
+      height: 100%;
+      border: 4px solid black;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV">
-    <h1>Cours Web Mapping</h1>
-    <h2>Exercice 3 : Visualisation d’images drones et satellites via GeoServer</h2>
-  </header>
+<div id="map"></div>
 
-  <div id="map"></div>
+<script>
+  // Initialisation de la carte centrée sur les coordonnées moyennes
+  const map = L.map('map', {
+    center: [45.4933, 12.3166],
+    zoom: 11
+  });
 
-  <footer>
-    © 2025 - IAV Hassan II | Département Topographie et SIG
-  </footer>
+  // Fond cartographique OSM
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
 
-  <script>
-    // Coordonnées en degrés décimaux (WGS84)
-    const bounds = [
-      [45.4093, 12.1600], // Nord-Ouest
-      [45.4093, 12.4736], // Nord-Est
-      [45.4093, 12.4736],
-      [45.4093, 12.1600],
-      [45.4093, 12.1600]
-    ];
+  // Coordonnées géographiques de ton image (en degrés décimaux)
+  const bounds = [
+    [45.40933, 12.16003], // Sud-Ouest
+    [45.58593, 12.47361]  // Nord-Est
+  ];
 
-    const map = L.map('map', {
-      center: [45.493, 12.3166],
-      zoom: 13,
-      fullscreenControl: true
-    });
+  // On affiche un cadre noir pour la zone couverte par les tuiles
+  L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
+  map.fitBounds(bounds);
 
-    // Fond OpenStreetMap
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+  // Boucle pour ajouter les 12 tuiles si elles sont nommées 1.png, 2.png, etc.
+  for (let i = 1; i <= 12; i++) {
+    const imageUrl = `${i}.png`;
+    L.imageOverlay(imageUrl, bounds, { opacity: 0.8 }).addTo(map);
+  }
 
-    // Définition de l’image orthophoto
-    const overlayBounds = [
-      [45.5859, 12.1699], // Nord-Ouest
-      [45.4093, 12.4736]  // Sud-Est
-    ];
+  // Popup informatif
+  L.popup()
+    .setLatLng([45.4933, 12.3166])
+    .setContent("📷 Cette orthophoto est issue de notre dernier TP Drone (DJI Matrice 300, 28/10/2025, Pr Sebari).")
+    .openOn(map);
+</script>
 
-    const overlay = L.imageOverlay("0.png", overlayBounds).addTo(map);
-    map.fitBounds(overlayBounds);
-
-    // Cadre noir
-    L.rectangle(overlayBounds, { color: "black", weight: 3, fill: false }).addTo(map);
-
-    // Popup
-    overlay.bindPopup("📷 Cette orthophoto est issue de notre dernier TP drone :<br>DJI Matrice 300, 80 m, GCP, 28/10/2025.<br>Cours : DRONE – Pr : Sebari").openPopup();
-
-    // MiniMap
-    const miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 0, maxZoom: 13 });
-    new L.Control.MiniMap(miniMapLayer, { toggleDisplay: true, minimized: false }).addTo(map);
-
-    // Barre d’échelle
-    L.control.scale().addTo(map);
-  </script>
 </body>
 </html>
