@@ -68,6 +68,27 @@
       margin-top: 15px;
     }
 
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls button {
+      background-color: #102542;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .controls button:hover {
+      background-color: #1b4b8a;
+    }
+
     footer {
       text-align: center;
       margin-top: 10px;
@@ -85,11 +106,16 @@
   <div class="projet">
     <div class="header">
       <img src="https://upload.wikimedia.org/wikipedia/commons/5/54/Logo_iav.png" alt="Logo IAV Hassan II">
-      <h1>Exercice 3 : Visualisation d’images drone</h1>
+      <h1>Exercice 3 : Visualisation d’une image satellite multispectrale</h1>
       <h2>Projet Web Mapping – Encadré par Pr. HAJJI</h2>
     </div>
 
     <div id="map"></div>
+
+    <div class="controls">
+      <button id="showImage">Afficher l’image</button>
+      <button id="hideImage">Masquer l’image</button>
+    </div>
 
     <footer>
       © 2025 - IAV Hassan II | Département Topographie et SIG
@@ -119,11 +145,25 @@
     L.rectangle(bounds, { color: 'black', weight: 3, fill: false }).addTo(map);
     map.fitBounds(bounds);
 
-    // Ajout des images
+    // Groupe des images
+    const imageGroup = L.layerGroup();
+
     for (let i = 1; i <= 12; i++) {
       const imageUrl = `${i}.png`;
-      L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(map);
+      L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(imageGroup);
     }
+
+    // Par défaut : afficher l’image
+    imageGroup.addTo(map);
+
+    // Gestion des boutons
+    document.getElementById('hideImage').onclick = () => {
+      if (map.hasLayer(imageGroup)) map.removeLayer(imageGroup);
+    };
+
+    document.getElementById('showImage').onclick = () => {
+      if (!map.hasLayer(imageGroup)) imageGroup.addTo(map);
+    };
 
     // Popup d’information
     L.popup()
